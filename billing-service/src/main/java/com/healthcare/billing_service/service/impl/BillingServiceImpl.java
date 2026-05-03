@@ -22,7 +22,7 @@ public class BillingServiceImpl implements BillingService {
     private final BillingRepository billingRepository;
     private final BillingMapper billingMapper;
     private final PatientClient patientClient;
-    private AppointmentClient appointmentClient;
+    private final AppointmentClient appointmentClient;
 
     @Override
     public BillingResponseDTO payBill(BillingRequestDTO billingRequestDTO) {

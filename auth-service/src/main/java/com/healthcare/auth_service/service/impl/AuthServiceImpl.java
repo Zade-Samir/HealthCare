@@ -92,13 +92,17 @@ public class AuthServiceImpl implements AuthService {
         if(authentication.isAuthenticated()) {
 
             // Fetch user to get their role
-            User user = userRepository.findByUsername(loginRequestDTO.getIdentity())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            User user = userRepository.findByUsernameOrEmail(
+                            loginRequestDTO.getIdentity(),
+                            loginRequestDTO.getIdentity()
+                    )
+                    .orElseThrow(() -> new RuntimeException("User profile not found after authentication"));
 
             // Ensure role is prefixed with ROLE_ for consistency
             String role = "ROLE_" + user.getRole().name();
 
             String token = jwtUtil.generateToken(user.getUsername(), role);
+
             return new AuthResponseDTO(token, "Login Successful!");
         }
         else {

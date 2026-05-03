@@ -29,7 +29,7 @@ public class MedicalRecordController {
             @Valid @RequestBody MedicalRecordRequestDTO medicalRecordRequestDTO
             ) {
         return ResponseEntity.ok(
-                new ApiResponse(
+                new ApiResponse<>(
                         true,
                         "Medical Record created successfully!",
                         medicalRecordService.createRecord(medicalRecordRequestDTO)

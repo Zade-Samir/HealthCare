@@ -70,7 +70,7 @@ public class PatientController {
     @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> updatePatient(
             @PathVariable Long id,
-            @RequestBody PatientRequestDTO patientRequestDTO
+            @Valid @RequestBody PatientRequestDTO patientRequestDTO
     ) {
         return ResponseEntity.ok(
                 new ApiResponse<>(
