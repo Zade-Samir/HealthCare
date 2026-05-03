@@ -36,7 +36,8 @@ public class BillingServiceImpl implements BillingService {
                     billingRequestDTO.getAppointmentId());
         }
         catch (Exception e) {
-            throw new BillingNotFoundException("Appointment validation failed: Service down or invalid ID");
+            // FIX: Pass 'e' to preserve the original failure reason
+            throw new BillingNotFoundException("Appointment validation failed: Service down or invalid ID", e);
         }
 
         AppointmentResponseDTO appointment = response.getBody().getData();
@@ -51,8 +52,8 @@ public class BillingServiceImpl implements BillingService {
             patientClient.getPatientById(billingRequestDTO.getPatientId());
         }
         catch (Exception e) {
-            e.printStackTrace(); // Yeh console mein asali error batayega
-            throw new BillingNotFoundException("Validation failed: " + e.getMessage());
+            // FIX: Replaced e.printStackTrace() with Exception Chaining
+            throw new BillingNotFoundException("Patient validation failed: " + e.getMessage(), e);
         }
 
         Billing billing = billingMapper.requestDtoToBilling(billingRequestDTO);

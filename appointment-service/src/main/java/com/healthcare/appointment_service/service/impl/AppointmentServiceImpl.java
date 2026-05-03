@@ -34,8 +34,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             patientClient.getPatientById(appointmentRequestDTO.getPatientId());
         }
         catch (Exception e) {
-            e.printStackTrace(); // Yeh console mein asali error batayega
-            throw new AppointmentNotFoundException("Validation failed: " + e.getMessage());
+            // Log original exception 'e' by passing it into the new one
+            throw new AppointmentNotFoundException("Patient validation failed: " + e.getMessage(), e);
         }
 
         //CALL DOCTOR-SERVICE TO VALIDATE THIS
@@ -43,8 +43,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             doctorClient.getDoctorById(appointmentRequestDTO.getDoctorId());
         }
         catch (Exception e) {
-            e.printStackTrace(); // Yeh console mein asali error batayega
-            throw new AppointmentNotFoundException("Validation failed: " + e.getMessage());
+            // Preserve the stack trace for debugging
+            throw new AppointmentNotFoundException("Doctor validation failed: " + e.getMessage(), e);
         }
 
         //convert requestdto to appointment

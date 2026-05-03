@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.util.HtmlUtils;
 
 import java.time.LocalDateTime;
 
@@ -18,13 +19,18 @@ public class GlobalExceptionHandler {
             DoctorNotFoundException ex,
             HttpServletRequest request
     ) {
+        // 1. Sanitize the path before creating the error response
+        String sanitizedPath = HtmlUtils.htmlEscape(request.getRequestURI());
+
+        // 2. Pass the sanitized path to the ErrorResponse
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
                 "NOT_FOUND",
                 ex.getMessage(),
-                request.getRequestURI()
+                sanitizedPath // Use the safe path
         );
+
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
@@ -38,13 +44,17 @@ public class GlobalExceptionHandler {
             message = "Email is already registered!";
         }
 
+        // SANITIZATION: Escape the URI to prevent XSS
+        String sanitizedPath = HtmlUtils.htmlEscape(request.getRequestURI());
+
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.CONFLICT.value(),
                 "CONFLICT",
                 message,
-                request.getRequestURI()
+                sanitizedPath // Use the sanitized path
         );
+
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 }

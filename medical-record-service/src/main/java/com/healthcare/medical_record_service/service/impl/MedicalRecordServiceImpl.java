@@ -33,8 +33,8 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
             patientClient.getPatientById(medicalRecordRequestDTO.getPatientId());
         }
         catch (Exception e) {
-            e.printStackTrace(); // Yeh console mein asali error batayega
-            throw new MedicalRecordNotFoundException("Validation failed: " + e.getMessage());
+            // We pass 'e' as the second argument
+            throw new MedicalRecordNotFoundException("Patient validation failed: " + e.getMessage(), e);
         }
 
         //CALL DOCTOR-SERVICE TO VALIDATE THIS
@@ -42,8 +42,8 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
             doctorClient.getDoctorById(medicalRecordRequestDTO.getDoctorId());
         }
         catch (Exception e) {
-            e.printStackTrace(); // Yeh console mein asali error batayega
-            throw new MedicalRecordNotFoundException("Validation failed: " + e.getMessage());
+            // Preserving the stack trace (Root Cause)
+            throw new MedicalRecordNotFoundException("Doctor validation failed: " + e.getMessage(), e);
         }
 
         MedicalRecord medicalRecord = medicalRecordMapper

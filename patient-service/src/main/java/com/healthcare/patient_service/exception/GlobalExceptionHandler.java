@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.util.HtmlUtils;
 
 import java.time.LocalDateTime;
 
@@ -26,14 +27,16 @@ public class GlobalExceptionHandler {
                 .findFirst()
                 .orElse("Validation error");
 
+        // 2. SANITIZE the Request URI before adding it to the response
+        String sanitizedPath = HtmlUtils.htmlEscape(request.getRequestURI());
+
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 "VALIDATION_ERROR",
                 message,
-                request.getRequestURI()
+                sanitizedPath // Use the sanitized string
         );
-
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -42,12 +45,16 @@ public class GlobalExceptionHandler {
             PatientNotFoundException ex,
             HttpServletRequest request
     ) {
+
+        // Escape the URI to neutralize any malicious script tags
+        String sanitizedPath = HtmlUtils.htmlEscape(request.getRequestURI());
+
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
                 "NOT_FOUND",
                 ex.getMessage(),
-                request.getRequestURI()
+                sanitizedPath // Use the sanitized path
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
@@ -58,16 +65,19 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         String message = "Data conflict: Likely a duplicate entry (Email/Phone).";
-        if (ex.getMessage().contains("patient_email_key")){
+        if (ex.getMessage() != null && ex.getMessage().contains("patient_email_key")){
             message = "Email is already registered!";
         }
+
+        // SANITIZATION STEP: Escape the URI to prevent XSS
+        String sanitizedPath = HtmlUtils.htmlEscape(request.getRequestURI());
 
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.CONFLICT.value(),
                 "CONFLICT",
                 message,
-                request.getRequestURI()
+                sanitizedPath // Use sanitized version to don't show html error directly on UI(else hacker can see it)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
