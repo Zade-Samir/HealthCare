@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: billing-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/billingDB
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+
+server:
+  port: 9004
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/ # Space added after colon and trailing slash
+    register-with-eureka: true # means to register
+    fetch-registry: true # means list of other services
+  instance:
+    prefer-ip-address: true # instread of port, use IP is good in production
+
+
+app:
+  security:
+    secret-key: "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437"
+    internal-secret-key : HealthProject2026
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      billingService: #must match the controller name of it
+        register-health-indicator: true
+        event-consumer-buffer-size: 10
+        failure-rate-threshold: 50 #if 50% request failed, then circuit opened
+        minimum-number-of-calls: 5 #check after this minimum calls
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s #after 5 second, switch to half-open
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED

@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: eureka-server
+server:
+  port: 8761
+
+#making this as false, because we don't want eureka server to register self
+# in self registry, as it will try to find self and throws the error
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
